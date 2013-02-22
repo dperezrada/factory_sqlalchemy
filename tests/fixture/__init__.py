@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from sqlalchemy import Column, create_engine, DateTime, ForeignKey, Integer,\
+from sqlalchemy import create_engine, MetaData, Column, DateTime, ForeignKey, Integer,\
     Sequence, String, Table
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -68,5 +68,22 @@ class Movie(Base):
     score = Column('score', Integer, default=0)
 
 
-engine = create_engine('sqlite:///:memory:')
-Base.metadata.create_all(engine)
+db_config = {'URL': 'sqlite:///test.db'}
+
+
+def create_db():
+    engine = create_engine(db_config['URL'])
+    Base.metadata.create_all(engine)
+    dbsession = scoped_session(
+        sessionmaker(
+            autocommit=True,
+            autoflush=True,
+            bind=engine
+        )
+    )
+    dbsession.expunge_all()
+    return engine, dbsession
+
+
+def drop_db(engine):
+    Base.metadata.drop_all(bind=engine)

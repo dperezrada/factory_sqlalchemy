@@ -1,5 +1,8 @@
 import inspect
 
+from sqlalchemy import create_engine, MetaData
+from sqlalchemy.orm import scoped_session, sessionmaker
+
 
 class BaseFactory(object):
     @classmethod
@@ -25,12 +28,29 @@ class BaseFactory(object):
 
     @classmethod
     def create(cls, *args, **kwargs):
+        dbsession = cls._get_db_instance(kwargs)
         instance = cls.build(*args, **kwargs)
-        #  TODO: pass session
-        # database = instance.metadata._bind.url.database.replace('test_', '')
-        # dbsessions[database].add(instance)
-        # dbsessions[database].flush()
+        dbsession.add(instance)
+        dbsession.flush()
         return instance
+
+    @classmethod
+    def _get_db_instance(cls, kwargs):
+        database_config = kwargs.get('_db')
+        if database_config is not None:
+            db_url = database_config.get('URL')
+            del database_config['URL']
+            engine = create_engine(db_url, **database_config)
+            dbsession = scoped_session(
+                sessionmaker(
+                    autocommit=True,
+                    autoflush=True,
+                    expire_on_commit=False,
+                    bind=engine
+                )
+            )
+            del kwargs['_db']
+        return dbsession
 
     @classmethod
     def _get_factory_init_params(cls, inspect_result, factory_arguments):
