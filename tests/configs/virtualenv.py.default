@@ -1,0 +1,3 @@
+# -*- coding: utf-8 -*-
+
+virtualenv_dir = '/PATH/env'
