@@ -55,4 +55,5 @@ class TestFactoryCRUD(unittest.TestCase):
     def test_create_that_should_store_in_database(self):
         args = dict()
         actor = self.ActorFactory.create(_db=db_config)
-        self.assertEqual('Juan', actor.name)
+        actor_from_db = self.dbsession.query(Actor).first()
+        self.assertEqual('Juan', actor_from_db.name)
