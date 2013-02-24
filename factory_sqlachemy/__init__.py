@@ -1,7 +1,10 @@
+# -*- coding: utf-8 -*-
 import inspect
 
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+
+from factory_sqlachemy.generators import GENERATORS
 
 
 class BaseFactory(object):
@@ -9,15 +12,15 @@ class BaseFactory(object):
     def build(cls, *args, **kwargs):
         cls._factory_arguments = {}
 
-        # get arguments of FACTORY_FOR
-        inspect_result = inspect.getargspec(cls.FACTORY_FOR.__init__)
+        # get arguments of FACTORY_FOR __init__
+        inspect_init_factory = inspect.getargspec(cls.FACTORY_FOR.__init__)
 
-        # case factory_for has a __init__ method defined
-        if len(inspect_result.args) > 1:
-            cls._get_factory_init_params(inspect_result, cls._factory_arguments)
-        # get data from table definition
-        else:
-            cls._get_arguments_from_table(cls._factory_arguments)
+        # set default values from FACTORY_FOR __init__ method
+        if len(inspect_init_factory.args) > 1:  # self is one
+            cls._set_factory_init_params(inspect_init_factory, cls._factory_arguments)
+
+        # complete object from table definition
+        cls._set_arguments_from_table(cls._factory_arguments)
 
         # set from kwargs
         for key, value in kwargs.iteritems():
@@ -53,10 +56,11 @@ class BaseFactory(object):
         return dbsession
 
     @classmethod
-    def _get_factory_init_params(cls, inspect_result, factory_arguments):
+    def _set_factory_init_params(cls, inspect_result, factory_arguments):
+        factory_arguments_tmp = dict()
         for arg in inspect_result.args:
-            if arg != 'self':
-                factory_arguments[arg] = None
+            if arg != 'self' and arg not in factory_arguments:
+                factory_arguments_tmp[arg] = None
 
         # get defaults of FACTORY_FOR
         if inspect_result.defaults is not None:
@@ -64,7 +68,8 @@ class BaseFactory(object):
                 inspect_result.args[-len(inspect_result.defaults):],
                 inspect_result.defaults
             ):
-                factory_arguments[arg] = value
+                if arg in factory_arguments_tmp:
+                    factory_arguments[arg] = value
 
         # if value defined, set it
         for key, value in factory_arguments.iteritems():
@@ -73,10 +78,12 @@ class BaseFactory(object):
                 factory_arguments[key] = defined
 
     @classmethod
-    def _get_arguments_from_table(cls, factory_arguments):
+    def _set_arguments_from_table(cls, factory_arguments):
         for key in cls.FACTORY_FOR.__table__.columns.keys():
             defined = cls.__dict__.get(key)
-            if defined is not None:
-                factory_arguments[key] = defined
-            else:
-                factory_arguments[key] = None
+            if key not in factory_arguments:
+                if defined is not None:
+                    factory_arguments[key] = defined
+                else:
+                    class_type = cls.FACTORY_FOR.__table__.columns[key].type
+                    factory_arguments[key] = GENERATORS[class_type.__class__].create()

@@ -3,4 +3,5 @@ factory_sqlalchemy
 
 Test
 ----
-complete virtualenv.py !
+# pip install nose
+nostests

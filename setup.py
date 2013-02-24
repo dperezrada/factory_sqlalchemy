@@ -17,7 +17,8 @@ setup(name='factory_sqlachemy',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-          'sqlalchemy'
+          'sqlalchemy',
+          'RandomWords'
       ],
       entry_points="""
       # -*- Entry points: -*-
