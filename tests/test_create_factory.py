@@ -15,10 +15,9 @@ class TestCreateFactory(unittest.TestCase):
 
     class ActorFactory(BaseFactory):
         FACTORY_FOR = Actor
-
         name = 'Juan'
 
     def test_create_that_should_store_in_database(self):
         actor = self.ActorFactory.create(_db=db_config)
-        self.assertEqual('Juan', actor.name)
-        # TODO: check on db
+        actor_from_db = self.dbsession.query(Actor).first()
+        self.assertEqual(actor.name, actor_from_db.name)
