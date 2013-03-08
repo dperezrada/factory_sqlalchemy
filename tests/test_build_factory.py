@@ -26,11 +26,11 @@ class TestPriorityFieldBuildFactory(unittest.TestCase):
         self.assertIsNotNone(actor.name)
         self.assertIsInstance(actor.name, unicode)
 
-    def test_default_name(self):
+    def test_defined_name(self):
         actor = self.ActorFactoryDefined.build()
         self.assertEqual('Juan', actor.name)
 
-    def test_defined_name(self):
+    def test_default_name(self):
         actor = self.ActorFactoryDefault.build()
         self.assertEqual('Felipe', actor.name)
 
