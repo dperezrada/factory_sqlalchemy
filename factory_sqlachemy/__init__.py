@@ -12,8 +12,16 @@ class BaseFactory(object):
     def build(cls, *args, **kwargs):
         cls._factory_arguments = {}
 
+        factory_for = None
+
+        if kwargs.get('FACTORY_FOR'):
+            factory_for = cls.FACTORY_FOR = kwargs.get('FACTORY_FOR')
+            del kwargs['FACTORY_FOR']
+        else:
+            factory_for = cls.FACTORY_FOR
+
         # get arguments of FACTORY_FOR __init__
-        inspect_init_factory = inspect.getargspec(cls.FACTORY_FOR.__init__)
+        inspect_init_factory = inspect.getargspec(factory_for.__init__)
 
         # set default values from FACTORY_FOR __init__ method
         if len(inspect_init_factory.args) > 1:  # self is one
