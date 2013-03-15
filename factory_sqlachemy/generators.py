@@ -26,7 +26,7 @@ class StringGenerator(Generator):
 
 class IntegerGenerator(Generator):
     def create(self):
-        return random.randint(0, sys.maxint)
+        return random.randint(0, 10000000)
 
 
 GENERATORS[_get_class('String')] = StringGenerator()
