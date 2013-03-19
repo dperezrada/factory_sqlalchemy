@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import random
 import sys
+from datetime import date, timedelta
 
 import sqlalchemy
 from random_words import RandomWords
@@ -29,5 +30,17 @@ class IntegerGenerator(Generator):
         return random.randint(0, 10000000)
 
 
+class DateGenerator(Generator):
+    def create(self):
+        return date.today() - timedelta(days=random.randint(0, 100))
+
+
+class FloatGenerator(Generator):
+    def create(self):
+        return random.randint(0, 10000000) + random.random()
+
+
 GENERATORS[_get_class('String')] = StringGenerator()
 GENERATORS[_get_class('Integer')] = IntegerGenerator()
+GENERATORS[_get_class('Date')] = DateGenerator()
+GENERATORS[_get_class('Float')] = FloatGenerator()
