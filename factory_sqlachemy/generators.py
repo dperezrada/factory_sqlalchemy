@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 import random
-import sys
+from datetime import date, timedelta
 
 import sqlalchemy
 from random_words import RandomWords
@@ -17,17 +17,27 @@ class Generator():
         raise NotImplementedError("Should have implemented this")
 
 
-rw = RandomWords()
+_rw = RandomWords()
 
 
 class StringGenerator(Generator):
     def create(self):
-        return rw.random_word()
+        return _rw.random_word()
 
 
 class IntegerGenerator(Generator):
     def create(self):
-        return random.randint(0, sys.maxint)
+        return random.randint(0, 10000000)
+
+
+class DateGenerator(Generator):
+    def create(self):
+        return date.today() - timedelta(days=random.randint(0, 100))
+
+
+class FloatGenerator(Generator):
+    def create(self):
+        return random.randint(0, 10000000) + random.random()
 
 
 class DateTimeGenerator(Generator):
@@ -38,3 +48,5 @@ class DateTimeGenerator(Generator):
 GENERATORS[_get_class('String')] = StringGenerator()
 GENERATORS[_get_class('Integer')] = IntegerGenerator()
 GENERATORS[_get_class('DateTime')] = DateTimeGenerator()
+GENERATORS[_get_class('Date')] = DateGenerator()
+GENERATORS[_get_class('Float')] = FloatGenerator()
