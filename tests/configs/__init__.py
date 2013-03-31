@@ -4,80 +4,97 @@ from sqlalchemy import create_engine, Column, DateTime, ForeignKey, Integer,\
 from sqlalchemy.orm import relationship, scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
+from factory_sqlachemy import add_class_table_to_factory
+
 
 Base = declarative_base()
 
 
+@add_class_table_to_factory
 class Entry(Base):
     __tablename__ = 'entry'
-    id = Column(Integer,
-            Sequence('id_seq', start=0, increment=1),
-            autoincrement=True,
-            primary_key=True)
+    id = Column(
+        Integer,
+        Sequence('id_seq', start=0, increment=1),
+        autoincrement=True,
+        primary_key=True)
     content = Column('content', String(100))
     author_id = Column(Integer, ForeignKey('user.id'))
     created = Column('created', DateTime)
+    # comments = relationship("Comment", backref="entry")
 
 
+@add_class_table_to_factory
 class Comment(Base):
     __tablename__ = 'comment'
-    id = Column(Integer,
-            Sequence('id_seq', start=0, increment=1),
-            autoincrement=True,
-            primary_key=True)
-    post_id = Column(Integer, ForeignKey('entry.id'))
+    id = Column(
+        Integer,
+        Sequence('id_seq', start=0, increment=1),
+        autoincrement=True,
+        primary_key=True)
+    entry_id = Column(Integer, ForeignKey('entry.id'))
     content = Column('content', String(100))
-    post_id = Column(Integer, ForeignKey('user.id'))
+    user_id = Column(Integer, ForeignKey('user.id'))
     created = Column('created', DateTime)
 
 
+@add_class_table_to_factory
 class Actor(Base):
     __tablename__ = 'actor'
-    id = Column(Integer,
-            Sequence('id_seq', start=0, increment=1),
-            autoincrement=True,
-            primary_key=True)
+    id = Column(
+        Integer,
+        Sequence('id_seq', start=0, increment=1),
+        autoincrement=True,
+        primary_key=True)
     name = Column('name', String(32), unique=True)
 
 
+@add_class_table_to_factory
 class Actor2(Base):
     __tablename__ = 'actor2'
 
     def __init__(self, id=0, name="Felipe"):
         super(Actor2, self).__init__(id=id, name=name)
 
-    id = Column(Integer,
-            Sequence('id_seq', start=0, increment=1),
-            autoincrement=True,
-            primary_key=True)
+    id = Column(
+        Integer,
+        Sequence('id_seq', start=0, increment=1),
+        autoincrement=True,
+        primary_key=True)
     name = Column('name', String(32), unique=True)
 
 
+@add_class_table_to_factory
 class User(Base):
     __tablename__ = 'user'
-    id = Column(Integer,
-            Sequence('id_seq', start=0, increment=1),
-            autoincrement=True,
-            primary_key=True)
+    id = Column(
+        Integer,
+        Sequence('id_seq', start=0, increment=1),
+        autoincrement=True,
+        primary_key=True)
     name = Column('name', String(32), unique=True)
 
 
-association_table = Table('association', Base.metadata,
+association_table = Table(
+    'association',
+    Base.metadata,
     Column('movie_id', Integer, ForeignKey('movie.id')),
-    Column('actor_id', Integer, ForeignKey('actor.id'))
-)
+    Column('actor_id', Integer, ForeignKey('actor.id')))
 
 
+@add_class_table_to_factory
 class Movie(Base):
     __tablename__ = 'movie'
-    id = Column(Integer,
-            Sequence('id_seq', start=0, increment=1),
-            autoincrement=True,
-            primary_key=True)
+    id = Column(
+        Integer,
+        Sequence('id_seq', start=0, increment=1),
+        autoincrement=True,
+        primary_key=True)
     name = Column('name', String(32), unique=True)
-    actors = relationship("Actor",
-                    secondary=association_table,
-                    backref="movies")
+    actors = relationship(
+        "Actor",
+        secondary=association_table,
+        backref="movies")
     score = Column('score', Integer, default=0)
 
 

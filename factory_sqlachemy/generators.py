@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 import random
 import sys
 
@@ -29,5 +30,11 @@ class IntegerGenerator(Generator):
         return random.randint(0, sys.maxint)
 
 
+class DateTimeGenerator(Generator):
+    def create(self):
+        return datetime.datetime.now()
+
+
 GENERATORS[_get_class('String')] = StringGenerator()
 GENERATORS[_get_class('Integer')] = IntegerGenerator()
+GENERATORS[_get_class('DateTime')] = DateTimeGenerator()
